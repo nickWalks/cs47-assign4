@@ -1,9 +1,13 @@
-import { StyleSheet, Text, FlatList, View, Image, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, Text, FlatList, View, Image, ScrollView, SafeAreaView, Pressable } from "react-native";
 import Colors from "../Themes/colors";
 import Images from "../Themes/images";
 import millisToMinutesAndSeconds from '../utils/millisToMinuteSeconds';
+import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SongList({ tracks }) {
+    const navigation = useNavigation();
+
     const SongInfo = ({ songName, artist }) => (
         < View style={styles.songInfo} >
             <Text numberOfLines={1} style={styles.songName}>{songName}</Text>
@@ -11,9 +15,17 @@ export default function SongList({ tracks }) {
         </View >
     );
 
+    function onPlayPress(e, preview_url) {
+        e.stopPropagation();
+        navigation.navigate("Song preview", {songPreview: preview_url});
+    }
+
     const renderItem = ({ item, index }) => (
-        <View style={styles.songItem}>
-            <Text style={styles.songNum}>{index + 1}</Text>
+        <Pressable style={styles.songItem} onPress={() => navigation.navigate("Song details", {external_url: item.external_urls.spotify})}>
+        {console.log(item)}
+            <Pressable style={styles.playButton} onPress={(e) => onPlayPress(e, item.preview_url)}>
+                <AntDesign name="caretright" size={12} color="black" />
+            </Pressable>
             <Image style={styles.albumImage} resizeMode="contain" source={{ uri: item.album.images[1].url }} />
             <SongInfo songName={item.name} artist={item.artists[0].name} />
             <View style={styles.lastBox}>
@@ -22,7 +34,7 @@ export default function SongList({ tracks }) {
             <Text style={styles.time}>{millisToMinutesAndSeconds(item.duration_ms)}</Text>
 
 
-        </View>
+        </Pressable>
 
     );
 
@@ -111,5 +123,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    playButton: {
+       marginRight: 5,
+       backgroundColor: Colors.spotify,
+       width: 20,
+       height: 20,
+       borderRadius: 10,
+       overflow: 'hidden',
+       display: 'flex',
+       justifyContent: 'center',
+       alignItems: 'center'
     }
 });

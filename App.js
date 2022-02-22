@@ -6,6 +6,10 @@ import { REDIRECT_URI, SCOPES, CLIENT_ID, ALBUM_ID } from "./utils/constants";
 import Colors from "./Themes/colors"
 import SpotifyAuthButton from "./components/SpotifyAuthButton";
 import SongList from "./components/SongList";
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import SongDetails from './components/SongDetails';
+import SongPreview from './components/SongPreview';
 
 // Endpoints for authorizing with Spotify
 const discovery = {
@@ -49,21 +53,48 @@ export default function App() {
     if (token) {
       // Authenticated, make API request
       fetchTracks();
+
     }
   }, [token]);
 
   let contentDisplayed = null;
+  const Stack = createStackNavigator();
 
   if (token) {
-    contentDisplayed = <SongList tracks={tracks} />
+    contentDisplayed = <Stack.Navigator initialRouteName="tracks">
+    <Stack.Screen name="tracks" options={{headerShown: false}}>
+      {props => <SongList {...props} tracks={tracks} />}
+    </Stack.Screen>
+    <Stack.Screen options={{
+          title: 'Song details',
+          headerStyle: {
+            backgroundColor: 'black',
+          },
+          headerTintColor: 'white',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }} name="Song details" component={SongDetails} />
+    <Stack.Screen options={{
+          title: 'Song details',
+          headerStyle: {
+            backgroundColor: 'black',
+          },
+          headerTintColor: 'white',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }} name="Song preview" component={SongPreview} />
+  </Stack.Navigator>
   } else {
+   //   navigation.navigate("authPage", {promptAsync: promptAsync});
     contentDisplayed = <SpotifyAuthButton promptAsync={promptAsync} />
   }
 
   return (
-    <>
+    <NavigationContainer>
       {contentDisplayed}
-    </>
+    </NavigationContainer>
   );
 }
 
